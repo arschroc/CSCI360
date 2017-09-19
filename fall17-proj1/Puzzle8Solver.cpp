@@ -7,6 +7,8 @@ void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions) {
 	expansions = 0;
 
 	// TODO
+	Puzzle8StateManager sm;	// Initialize the state manager.
+	Puzzle8PQ openList;	// Initialize the priority queue.
 		
 }
 
