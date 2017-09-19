@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <math.h>
 
 // Represents an 8-puzzle state as a 3x3 array of chars. Each char can take values in range '0'-'9' (chars, not integers).
 // '0' represents the blank tile.
@@ -70,8 +71,8 @@ public:
 				{
 					int targetX = value % 3;
 					int targetY = value / 3;
-					int xDif = Math.abs(value - targetX);
-					int yDif = Math.abs(value - targetY);
+					int xDif = abs(value - targetX);
+					int yDif = abs(value - targetY);
 					manhattanDistanceSum += xDif + yDif;
 				}
 			}
