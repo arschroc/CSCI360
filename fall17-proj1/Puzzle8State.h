@@ -22,6 +22,7 @@ public:
 			for (int c = 0; c < 3; c++)
 				tiles[r][c] = s[r*3 + c];
 		expanded = false;
+		costToState = 0;
 	}
 
 	// Key generated as an integer for the hash function in Puzzle8StateManager.
@@ -35,6 +36,10 @@ public:
 
 	bool isExpanded() {
 		return expanded;
+	}
+
+	void setExpanded() {
+		expanded = true;
 	}
 
 	// Return the linearized form as a string. (You don't need to use this.)
@@ -54,6 +59,14 @@ public:
 			for (int c = 0; c < 3; c++)
 				s += newTiles[r][c];
 		return s;
+	}
+
+	void setCostToState(int cost) {
+		costToState = cost;
+	}
+
+	int getCostToState() {
+		return costToState;
 	}
 
 	// Print the puzzle in a 3x3 layout. (You don't need to use this.)
@@ -77,18 +90,19 @@ public:
 	targetY = y / 3
 	*/
 	int ManhattanDistance() {
+
 		int manhattanDistanceSum = 0;
 		for (int i = 0; i < 3; ++i)
 		{
 			for (int j = 0; j < 3; ++j)
 			{
-				int value = (int)tiles[3][3];
+				int value = (int)tiles[i][j] - 48;
 				if (value != 0)
 				{
 					int targetX = value % 3;
 					int targetY = value / 3;
-					int xDif = abs(value - targetX);
-					int yDif = abs(value - targetY);
+					int xDif = abs(j - targetX);
+					int yDif = abs(i - targetY);
 					manhattanDistanceSum += xDif + yDif;
 				}
 			}
@@ -132,6 +146,8 @@ public:
 						newTiles[i][j] = newTiles[i-1][j];
 						newTiles[i-1][j] = temp;
 						Puzzle8State state(GetLinearizedFormWithTiles(newTiles));
+						int newCost = costToState + 1;
+						state.setCostToState(newCost);
 						v.push_back(state);
 					}
 
@@ -143,6 +159,8 @@ public:
 						newTiles[i][j] = newTiles[i+1][j];
 						newTiles[i+1][j] = temp;
 						Puzzle8State state(GetLinearizedFormWithTiles(newTiles));
+						int newCost = costToState + 1;
+						state.setCostToState(newCost);
 						v.push_back(state);
 					}
 
@@ -154,6 +172,8 @@ public:
 						newTiles[i][j] = newTiles[i][j-1];
 						newTiles[i][j-1] = temp;
 						Puzzle8State state(GetLinearizedFormWithTiles(newTiles));
+						int newCost = costToState + 1;
+						state.setCostToState(newCost);
 						v.push_back(state);
 					}
 
@@ -165,14 +185,14 @@ public:
 						newTiles[i][j] = newTiles[i][j+1];
 						newTiles[i][j+1] = temp;
 						Puzzle8State state(GetLinearizedFormWithTiles(newTiles));
+						int newCost = costToState + 1;
+						state.setCostToState(newCost);
 						v.push_back(state);
 					}					
 				}
 			}
 		}
 
-		//set expanded to true
-		expanded = true;
 		return v;
 	}
 
@@ -183,6 +203,7 @@ private:
 	// 0th row is the top row, and 0th column is the leftmost column.
 	char tiles[3][3];
 	bool expanded;
+	int costToState;
 
 };
 
