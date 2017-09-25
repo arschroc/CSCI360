@@ -14,7 +14,6 @@ void WeightedAStar(std::string puzzle, double w, int & cost, int & expansions) {
 	cost = 0;
 	expansions = 0;
 
-	// TODO
 	Puzzle8StateManager sm;	// Initialize the state manager.
 	Puzzle8PQ openList;	// Initialize the priority queue.
 	vector<Puzzle8State> states; //List of all states created so far
