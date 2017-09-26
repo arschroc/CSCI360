@@ -60,11 +60,13 @@ public:
 				s += newTiles[r][c];
 		return s;
 	}
-
+	
+	// Sets the cost to reach the state
 	void setCostToState(int cost) {
 		costToState = cost;
 	}
-
+	
+	//returns the cost to reach the state
 	int getCostToState() {
 		return costToState;
 	}
@@ -114,7 +116,7 @@ public:
 
 	//Creates a shallow copy of the tiles
 	char** CreateNewTiles() {
-		char** newTiles = 0;
+	char** newTiles = 0;
       	newTiles = new char*[3];
 		for (int i = 0; i < 3; ++i)
 		{
