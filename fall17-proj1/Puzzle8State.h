@@ -34,12 +34,10 @@ public:
 		return key;
 	}
 
-	//returns true if state has been expanded previously, else false
 	bool isExpanded() {
 		return expanded;
 	}
 
-	//sets that the current state has been expanded
 	void setExpanded() {
 		expanded = true;
 	}
@@ -63,12 +61,10 @@ public:
 		return s;
 	}
 
-	//sets the cost to get from the input state to current state
 	void setCostToState(int cost) {
 		costToState = cost;
 	}
 
-	//returns the cost to get from the input state to current state
 	int getCostToState() {
 		return costToState;
 	}

@@ -30,13 +30,13 @@ void DemoStateManager () {
 
 		if (sm.IsGenerated(s)) { // You can check if a state has already been generated before ...
 			// ... and get its ids by using the function GetStateId.
-			cout<<"State "<<s.GetLinearizedForm()<<" has already been generated with id "<< sm.GetStateId(s)<<endl;
+			cout<<"State "<<s.GetLinearizedForm()<<" has already been generated with id "<<sm.GetStateId(s)<<endl;
 		}
 		else {
 
 			// GenerateState only generates a state if it has not been generated before.
 			// It returns the id of the state (if it already exists, returns previous id, otherwise, generates a new id).
-			cout<<"State "<<s.GetLinearizedForm()<<" is generated with id "<< sm.GenerateState(s)<<endl;
+			cout<<"State "<<s.GetLinearizedForm()<<" is generated with id "<<sm.GenerateState(s)<<endl;
 		}
 	}
 	cout<<"----------"<<endl;
