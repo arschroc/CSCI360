@@ -1,3 +1,3 @@
 all:
-	g++ -std=c++11 -o DecisionTree main.cpp
+	g++ -std=c++11 -o dt main.cpp helper.cpp
 
