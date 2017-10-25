@@ -88,20 +88,20 @@ int main(int argc, char *argv[]) {
 		//create total data table
 		for (int i = 0; i < dataset2.size() - 1; ++i)
 		{
-			parseString(dataset2.at(i), totalDataTable);
+			parseStringIntoTable(dataset2.at(i), totalDataTable);
 		}
 
 		//training set size = 80% creation
 		int trainingSize = dataset.size() * 8 / 10;
 		for (int i = 0; i < trainingSize; ++i)
 		{
-			parseString(dataset.at(i), trainingDataTable);
+			parseStringIntoTable(dataset.at(i), trainingDataTable);
 		}
 
 		//Testing set creating
 		for (int i = trainingSize; i < dataset.size(); ++i)
 		{
-			parseString(dataset.at(i), testingDataTable);
+			parseStringIntoTable(dataset.at(i), testingDataTable);
 		}
 
 		//Stores list of attributes and their possible values
@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
 
 			}
 			else {
-				test = testData(testingDataTable[i], root, attributesInfo, actualClassLabels.at(i));
+				test = testData(testingDataTable[i], root, attributesInfo);
 			}
 
 			predictedClassLabels.push_back(test);
@@ -140,10 +140,10 @@ int main(int argc, char *argv[]) {
 
 
 		//PRINT OUTPUT
-		double accuracy = printPredictionsAndCalculateAccuracy(actualClassLabels, predictedClassLabels);
+		double accuracy = part1PercentAccuracy(actualClassLabels, predictedClassLabels);
 		cout << "Part 1 accuracy is ";
 		cout << accuracy;
-		cout << "%%" << endl;
+		cout << "%" << endl;
 		
 
 	}

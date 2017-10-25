@@ -45,7 +45,7 @@ struct TreeNode
  */
 
 //Parses an inputed string and creates a vector of vector of strings
-void parseString(string&, vvs&);	
+void parseStringIntoTable(string&, vvs&);	
 
 //Prints a vector of vector of strings					
 void printVVS(vvs&); 
@@ -72,8 +72,14 @@ vi valueFrequency(vvs&, int);
 //returns the index of an attribute
 int getAttributeIndex(string&, vvs&); 
 
+//Updates examples removing the trait that we split on
+vvs updateExamples(vvs&, string&, string);
 
-vvs pruneTable(vvs&, string&, string); //prunes a table based on a column/attribute's name and the value of that attribute. Removes that column and all instances that have that value for that column
-string testData(vs&, TreeNode*, vvs&, string); //runs a single instance of the test data through the decision tree. Returns the predicted class label
-int returnIndexOfVector(vs&, string); //returns the index of a string in a vector of strings
-double printPredictionsAndCalculateAccuracy(vs&, vs&);
+//runs a single instance of the test data through the decision tree. Returns the predicted class label
+string testData(vs&, TreeNode*, vvs&); 
+
+//returns the index of a string in a vector of strings
+int getVectorIndex(vs&, string); 
+
+//Prints percent accuracy for part1
+double part1PercentAccuracy(vs&, vs&);

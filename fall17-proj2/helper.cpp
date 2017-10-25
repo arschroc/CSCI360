@@ -1,24 +1,23 @@
 #include "helper.h"
 #include <algorithm>
+#include <sstream>
 
-void parseString(string& someString, vvs& attributeTable) {
-	int attributeCount = 0;
-	vs vectorOfStrings;
-	while (someString.length() != 0 && someString.find(',') != string::npos)
-	{
-		size_t pos;
-		string singleAttribute;
-		pos = someString.find_first_of(',');
-		singleAttribute = someString.substr(0, pos);
-		vectorOfStrings.push_back(singleAttribute);
-		someString.erase(0, pos+1);
+void parseStringIntoTable(string& line, vvs& attributeTable) {
+	istringstream ss(line);
+	string temp;
+	vs strings;
+
+	//seperate the line by commas and add each string into strings vector
+	while(std::getline(ss, temp, ',')) {
+    	strings.push_back(temp);
 	}
-	vectorOfStrings.push_back(someString);
-	attributeTable.push_back(vectorOfStrings);
-	vectorOfStrings.clear();
+
+	//push strings onto vector of vector of strings
+	attributeTable.push_back(strings);
 }
 
 void printVVS(vvs& attributeTable) {
+	//loop throught able printing each row at a time
 	for (int row = 0; row < attributeTable.size(); row++) {
 		for (int column = 0; column < attributeTable[row].size(); column++) {
 			cout << attributeTable[row][column] << " ";
@@ -81,7 +80,7 @@ TreeNode* decisionTreeLearning(vvs& examples, vvs& attributes, TreeNode* node) {
 			newNode->isLeafNode = false; //not a leaf node if a splitting node
 			newNode->splitOn = split;
 			//update the examples to not include splitting value
-			vvs updatedExamples = pruneTable(examples, split, attributes[index][i]); 
+			vvs updatedExamples = updateExamples(examples, split, attributes[index][i]); 
 			//recurse to create sub trees and set those as the children
 			node->children.push_back(decisionTreeLearning(updatedExamples, attributes, newNode));
 		}
@@ -133,7 +132,7 @@ string whereToSplit(vvs &examples)
 				map[examples[i][column]] = 1;
 
 				//prune the dataTable of new attribute
-				vvs table = pruneTable(examples, columnName, examples[i][column]);
+				vvs table = updateExamples(examples, columnName, examples[i][column]);
 
 				int size = table[0].size()-1;
 				vi frequencies = valueFrequency(table, size);
@@ -220,50 +219,73 @@ vi valueFrequency(vvs &table, int column)
 	return frequencies;
 }
 
-vvs pruneTable(vvs &attributeTable, string &colName, string value)
+vvs updateExamples(vvs &attributes, string &columnString, string value)
 {
-	vvs prunedTable;
+	vvs updatedExamples;
 	int column = -1;
-	vs headerRow;
-	for (int i = 0; i < attributeTable[0].size(); i++) {
-		if (attributeTable[0][i] == colName) {
+	vs attributeRow;
+
+	//Find the column we are removing
+	for (int i = 0; i < attributes[0].size(); i++) {
+		if (attributes[0][i] == columnString) {
 			column = i;
 			break;
 		}
 	}
-	for (int i = 0; i < attributeTable[0].size(); i++) {
+
+	//Remove the desired attribute
+	for (int i = 0; i < attributes[0].size(); i++) {
 		 if (i != column) {
-		 	headerRow.push_back(attributeTable[0][i]);
+		 	attributeRow.push_back(attributes[0][i]);
 		 }
 	}
-	prunedTable.push_back(headerRow);
-	for (int i = 0; i < attributeTable.size(); i++) {
-		vs auxRow;
-		if (attributeTable[i][column] == value) {
-			for (int j = 0; j < attributeTable[i].size(); j++) {
+
+	//push the updated attributes into updatedExamples
+	updatedExamples.push_back(attributeRow);
+
+	//Finish created examples list table
+	for (int i = 0; i < attributes.size(); i++) {
+		vs row; //used to create a row
+
+		if (attributes[i][column] == value) {
+			for (int j = 0; j < attributes[i].size(); j++) {
+
+				//Dont add the column that we removed
 				if(j != column) {
-					auxRow.push_back(attributeTable[i][j]);
+					row.push_back(attributes[i][j]);
 				}
 			}
-			prunedTable.push_back(auxRow);
+
+			updatedExamples.push_back(row);
 		}
 	}
-	return prunedTable;
+	return updatedExamples;
 }
 
-string testData(vs &singleLine, TreeNode* nodePtr, vvs &attributes, string defaultClass)
+string testData(vs &row, TreeNode* node, vvs &attributes)
 {
 	string prediction;
-	while (!nodePtr->isLeafNode && !nodePtr->children.empty()) {
-		int index = getAttributeIndex(nodePtr->splitOn, attributes);
-		string value = singleLine[index];
-		int childIndex = returnIndexOfVector(nodePtr->childrenValues, value);
-		nodePtr = nodePtr->children[childIndex];
-		if (nodePtr == NULL) {
-			prediction = defaultClass;
+
+	//Traverse through nodes until leaf is reached (no more children left)
+	while (!node->isLeafNode && !node->children.empty()) {
+		//gets the index of current attribute
+		int index = getAttributeIndex(node->splitOn, attributes);
+		string value = row[index];
+
+		//get index of next child
+		int childIndex = getVectorIndex(node->childrenValues, value);
+
+		//set node to childs
+		node = node->children[childIndex];
+
+		//If no prediction can be made, assume poisonous to be safe
+		if (node == NULL) {
+			prediction = "1"; 
 			break;
 		}
-		prediction = nodePtr->value;
+
+		//if a prediction exists set that
+		prediction = node->value;
 	}
 	return prediction;
 }
@@ -281,23 +303,30 @@ int getAttributeIndex(string &attribute, vvs &attributes)
 	return -1;
 }
 
-int returnIndexOfVector(vs &stringVector, string value)
+int getVectorIndex(vs &stringVector, string value)
 {
 	for (int i = 0; i < stringVector.size(); i++) {
 		if (stringVector[i] == value)	{
 			return i;
 		}
 	}
+
+	//if vector doesn't have value then return -1
 	return -1;
 }
 
-double printPredictionsAndCalculateAccuracy(vs &givenData, vs &predictions)
+double part1PercentAccuracy(vs &actual, vs &prediction)
 {
 	int correct = 0;
-	for (int i = 0; i < givenData.size(); i++) {
-		if (givenData[i] == predictions[i]) {
+
+	for (int i = 0; i < actual.size(); i++) {
+
+		//if actual == prediction increment correct counter
+		if (actual[i] == prediction[i]) {
 			correct++;
 		} 
 	}
-	return (double) correct/givenData.size() * 100;
+
+	//return percent of correct predictions
+	return (double) correct/actual.size() * 100;
 }
