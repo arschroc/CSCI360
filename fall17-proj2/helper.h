@@ -43,6 +43,9 @@ vvs generateAttributesVector(vvs&);
 //Build the decision tree given examples, attributes, and parent_examples
 TreeNode* decisionTreeLearning(vvs&, vvs&, TreeNode*);
 
+//Build the decision tree given examples, attributes, and parent_examples and also has a max depth
+TreeNode* decisionTreeLearningDepth(vvs&, vvs&, TreeNode*, int);
+
 //returns true if vector of vector of strings is empty
 bool vvsIsEmpty(vvs&); 
 
@@ -70,3 +73,5 @@ int getVectorIndex(vs&, string);
 
 //Prints percent accuracy for part1
 double part1PercentAccuracy(vs&, vs&);
+
+string mostCommonValue(vvs);

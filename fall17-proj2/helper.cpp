@@ -79,6 +79,7 @@ TreeNode* decisionTreeLearning(vvs& examples, vvs& attributes, TreeNode* node) {
 			node->childrenValues.push_back(attributes[index][i]);
 			newNode->isLeafNode = false; //not a leaf node if a splitting node
 			newNode->splitOn = split;
+			newNode->depth = node->depth + 1;
 			//update the examples to not include splitting value
 			vvs updatedExamples = updateExamples(examples, split, attributes[index][i]); 
 			//recurse to create sub trees and set those as the children
@@ -87,6 +88,77 @@ TreeNode* decisionTreeLearning(vvs& examples, vvs& attributes, TreeNode* node) {
 	}
 
 	return node;
+}
+
+TreeNode* decisionTreeLearningDepth(vvs& examples, vvs& attributes, TreeNode* node, int maxDepth) {
+
+	//cout << "node depth is " << node->depth << endl;
+	//cout << "max depth is " << maxDepth << endl;
+
+	//if examples is empty then return plurality-value(parent_examples)
+	if (vvsIsEmpty(examples)) {
+		return NULL;
+	}
+	//if all examples have the same classification then return the classification
+	else if (sameClassification(examples)) {
+		node->isLeafNode = true;
+		//Assign the correct class value
+		node->value = examples[1][0];
+		return node;
+	}
+	else if(node->depth == maxDepth) {
+		node->isLeafNode = true;
+		node->value = mostCommonValue(examples);
+		//node->value = to_string(rand()%2);
+		return node;
+	}
+	else {
+		//decide what column to split on
+		string split = whereToSplit(examples);
+		node->splitOn = split;
+		int index = getAttributeIndex(split, attributes);
+
+		//cout << "Split on " << split << endl;
+		//cout << "Node depth is " << node->depth << endl;
+
+		//loop through all values of splitting attribute creating new nodes
+		for (int i = 1; i < attributes[index].size(); i++) {
+			TreeNode* newNode = (TreeNode*) new TreeNode;
+			newNode->depth = node->depth + 1;
+			newNode->value = attributes[index][i];
+			node->childrenValues.push_back(attributes[index][i]);
+			newNode->isLeafNode = false; //not a leaf node if a splitting node
+			newNode->splitOn = split;
+			//update the examples to not include splitting value
+			vvs updatedExamples = updateExamples(examples, split, attributes[index][i]); 
+			//recurse to create sub trees and set those as the children
+			node->children.push_back(decisionTreeLearningDepth(updatedExamples, attributes, newNode, maxDepth));
+		}
+	}
+
+	return node;
+}
+
+string mostCommonValue(vvs examples) {
+	int zeroCounter = 0;
+	int oneCounter = 0;
+
+	for (int i = 1; i < examples.size(); ++i)
+	{
+		if (examples[i][0] == "0")
+		{
+			zeroCounter++;
+		}
+		else {
+			oneCounter++;
+		}
+	}
+
+	if (zeroCounter > oneCounter)
+	{
+		return "0";
+	}
+	return "1";
 }
 
 bool vvsIsEmpty(vvs &table)

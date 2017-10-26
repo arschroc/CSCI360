@@ -13,4 +13,5 @@ struct TreeNode
 	bool isLeafNode;
 	vector<string> childrenValues;
 	vector<TreeNode*> children;
+	int depth;
 };
