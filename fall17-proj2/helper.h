@@ -7,6 +7,7 @@
 #include <float.h>
 #include <cstdlib>
 #include <iomanip>
+#include "TreeNode.h"
 
 using namespace std;
 
@@ -22,20 +23,6 @@ typedef vector<int> vi;
 typedef map<string, int> msi;
 typedef vector<double> vd;
 
-
-/*
- *
- * TreeNode Struct for creating the DecisionTree
- *
- */
-struct TreeNode
-{
-	string splitOn;
-	string value;
-	bool isLeafNode;
-	vector<string> childrenValues;
-	vector<TreeNode*> children;
-};
 
 
 /*
