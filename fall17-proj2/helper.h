@@ -74,4 +74,5 @@ int getVectorIndex(vs&, string);
 //Prints percent accuracy for part1
 double part1PercentAccuracy(vs&, vs&);
 
+//Returns the most common value of poisonous and non poisonous
 string mostCommonValue(vvs);
