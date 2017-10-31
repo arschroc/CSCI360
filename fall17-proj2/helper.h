@@ -14,14 +14,14 @@ using namespace std;
 
 /*
  *
- * Typedefs to be used in both helper.cpp and main.cpp
+ * Typedefs to be used in both helper.cpp and main.cpp and TreeNode.h
  *
  */
+typedef vector<int> vi;
+typedef vector<double> vd;
 typedef vector<string> vs;
 typedef vector<vs> vvs;
-typedef vector<int> vi;
 typedef map<string, int> msi;
-typedef vector<double> vd;
 
 
 
@@ -31,11 +31,14 @@ typedef vector<double> vd;
  *
  */
 
+//Parses inputted txt file into a vector of strings for each line
+vs parseDataset(string);
+
+//parses a string into an array of strings by splitting origional string by commas
+vs parseByComma(string);
+
 //Parses an inputed string and creates a vector of vector of strings
 void parseStringIntoTable(string&, vvs&);	
-
-//Prints a vector of vector of strings					
-void printVVS(vvs&); 
 
 //Generates a vector of vector of strings to hold mushroom attributes and thier values
 vvs generateAttributesVector(vvs&); 
@@ -76,3 +79,9 @@ double part1PercentAccuracy(vs&, vs&);
 
 //Returns the most common value of poisonous and non poisonous
 string mostCommonValue(vvs);
+
+//Output for table of part2
+double OutputPart2(int, vs, vvs);
+
+//Final output for part2
+double FinalOutputPart2(int, vs, vvs);

@@ -2,6 +2,44 @@
 #include <algorithm>
 #include <sstream>
 
+//Parses the dataset from a file
+vs parseDataset(string dataFile) {
+	string line;
+	ifstream file(dataFile); 
+	vs lines;
+
+	//save the first line
+	string firstLine = "";
+	getline(file, firstLine);
+
+    while (getline(file, line))
+    {
+        lines.push_back(line);
+    }
+
+    file.close();
+
+    //randomizes the lines parsed
+    srand(time(0));
+    random_shuffle ( lines.begin(), lines.end() );
+    lines.insert(lines.begin(), firstLine);
+
+
+    return lines;
+}
+
+vs parseByComma(string input) {
+	istringstream ss(input);
+	string word;
+	vs words;
+
+	while(getline(ss, word, ',')) {
+    	words.push_back(word);
+	}
+
+	return words;
+}
+
 void parseStringIntoTable(string& line, vvs& attributeTable) {
 	istringstream ss(line);
 	string temp;
@@ -14,16 +52,6 @@ void parseStringIntoTable(string& line, vvs& attributeTable) {
 
 	//push strings onto vector of vector of strings
 	attributeTable.push_back(strings);
-}
-
-void printVVS(vvs& attributeTable) {
-	//loop throught able printing each row at a time
-	for (int row = 0; row < attributeTable.size(); row++) {
-		for (int column = 0; column < attributeTable[row].size(); column++) {
-			cout << attributeTable[row][column] << " ";
-		}
-		cout << endl;
-	}
 }
 
 vvs generateAttributesVector(vvs &dataTable)
@@ -69,7 +97,7 @@ TreeNode* decisionTreeLearning(vvs& examples, vvs& attributes, TreeNode* node) {
 	else {
 		//decide what column to split on
 		string split = whereToSplit(examples);
-		node->splitOn = split;
+		node->split = split;
 		int index = getAttributeIndex(split, attributes);
 
 		//loop through all values of splitting attribute creating new nodes
@@ -78,7 +106,7 @@ TreeNode* decisionTreeLearning(vvs& examples, vvs& attributes, TreeNode* node) {
 			newNode->value = attributes[index][i];
 			node->childrenValues.push_back(attributes[index][i]);
 			newNode->isLeafNode = false; //not a leaf node if a splitting node
-			newNode->splitOn = split;
+			newNode->split = split;
 			newNode->depth = node->depth + 1;
 			//update the examples to not include splitting value
 			vvs updatedExamples = updateExamples(examples, split, attributes[index][i]); 
@@ -115,7 +143,7 @@ TreeNode* decisionTreeLearningDepth(vvs& examples, vvs& attributes, TreeNode* no
 	else {
 		//decide what column to split on
 		string split = whereToSplit(examples);
-		node->splitOn = split;
+		node->split = split;
 		int index = getAttributeIndex(split, attributes);
 
 		//cout << "Split on " << split << endl;
@@ -128,7 +156,7 @@ TreeNode* decisionTreeLearningDepth(vvs& examples, vvs& attributes, TreeNode* no
 			newNode->value = attributes[index][i];
 			node->childrenValues.push_back(attributes[index][i]);
 			newNode->isLeafNode = false; //not a leaf node if a splitting node
-			newNode->splitOn = split;
+			newNode->split = split;
 			//update the examples to not include splitting value
 			vvs updatedExamples = updateExamples(examples, split, attributes[index][i]); 
 			//recurse to create sub trees and set those as the children
@@ -187,12 +215,9 @@ string whereToSplit(vvs &examples)
 	//loop through each column and decide which to split on
 	for (int column = 1; column < examples[0].size(); column++) {
 		msi map;
-		vi counts = valueFrequency(examples, column);
+		vi freq = valueFrequency(examples, column);
 		vd attributeEntropy;
 		string columnName = examples[0][column];
-
-		//Reset entropy to 0
-		double columnEntropy = 0.0;
 
 		//Go through each example calculating entropy for each attribute
 		for (int i = 1; i < examples.size()-1; i++) {
@@ -212,7 +237,11 @@ string whereToSplit(vvs &examples)
 				//calculate entropy
 				for (int j = 0; j < frequencies.size(); j++) {
 					double val = (double) frequencies[j];
-					entropy -= (val/frequencies[frequencies.size()-1])*(log(val/frequencies[frequencies.size()-1]) / log(2));
+
+					//Calculate the entropy for each iteration of a value
+					double p = val/frequencies[frequencies.size()-1];
+					double b = log(val/frequencies[frequencies.size()-1]) / log(2);
+					entropy = entropy - (p*b);
 				}
 
 				//add entropy of attribute
@@ -228,12 +257,15 @@ string whereToSplit(vvs &examples)
 			}
 		}
 
-		//Calculate total column entropy 
-		for (int i = 1; i < counts.size(); i++) {
-			columnEntropy += ((double) counts[i] * (double) attributeEntropy[i]);
+		//Reset entropy to 0
+		double columnEntropy = 0.0;
+
+		//Find column entropy for each attribute
+		for (int i = 1; i < freq.size(); i++) {
+			columnEntropy = columnEntropy + ((double) freq[i] * (double) attributeEntropy[i]);
 		}
 
-		columnEntropy = columnEntropy / ((double) counts[counts.size() - 1]);
+		columnEntropy = columnEntropy / ((double) freq[freq.size() - 1]);
 
 		//Calculate if new column entropy is the new minimum entropy
 		if (columnEntropy <= minEntropy) {
@@ -341,7 +373,7 @@ string testData(vs &row, TreeNode* node, vvs &attributes)
 	//Traverse through nodes until leaf is reached (no more children left)
 	while (!node->isLeafNode && !node->children.empty()) {
 		//gets the index of current attribute
-		int index = getAttributeIndex(node->splitOn, attributes);
+		int index = getAttributeIndex(node->split, attributes);
 		string value = row[index];
 
 		//get index of next child
@@ -401,4 +433,157 @@ double part1PercentAccuracy(vs &actual, vs &prediction)
 
 	//return percent of correct predictions
 	return (double) correct/actual.size() * 100;
+}
+
+double OutputPart2(int depth, vs datasetPart2, vvs attributesInfo) {
+		if (depth > 9)
+		{
+			cout << " " << depth << "\t";
+		}
+		else 
+		{
+			cout << "  " << depth << "\t";
+		}
+		
+		vvs trainingDataTablePart2;
+		vvs validationDataTablePart2;
+		vvs testingDataTablePart2;
+
+		//training set size = 80% creation
+		int trainingSizePart2 = datasetPart2.size() * 6 / 10;
+		int validationSizePart2 = datasetPart2.size() * 8 / 10;
+
+		for (int i = 0; i < trainingSizePart2; ++i)
+		{
+			parseStringIntoTable(datasetPart2.at(i), trainingDataTablePart2);
+		}
+
+		//Testing set creating
+		for (int i = trainingSizePart2; i < validationSizePart2; ++i)
+		{
+			parseStringIntoTable(datasetPart2.at(i), validationDataTablePart2);
+		}
+
+		for (int i = validationSizePart2; i < datasetPart2.size(); ++i)
+		{
+			parseStringIntoTable(datasetPart2.at(i), testingDataTablePart2);
+		}
+
+		TreeNode* root2 = new TreeNode;
+		root2->depth = 0;
+		root2 = decisionTreeLearningDepth(trainingDataTablePart2, attributesInfo, root2, depth);
+		
+		//Output
+		//Test agains the decision tree we just made
+		vs predictedClassLabelsPart2;
+		vs actualClassLabelsPart2;
+
+		//Output against train set
+		for (int i = 1; i < trainingDataTablePart2.size(); i++)	
+		{
+			string data = trainingDataTablePart2[i][0];
+			actualClassLabelsPart2.push_back(data);
+		}
+		
+		for (int i = 1; i < trainingDataTablePart2.size(); i++)	
+		{
+			string test = "";
+			if (i == trainingDataTablePart2.size() - 1)
+			{
+				test = "0";
+			}
+			else {
+				test = testData(trainingDataTablePart2[i], root2, attributesInfo);
+			}
+
+			predictedClassLabelsPart2.push_back(test);
+		}
+
+		double accuracy2Train = part1PercentAccuracy(actualClassLabelsPart2, predictedClassLabelsPart2);
+		//cout << "Part 2 train" << "%" << " for depth " << depth << " is ";
+		cout << setprecision(4);
+		cout << accuracy2Train << "\t";
+		
+
+		//Output against validation set
+		predictedClassLabelsPart2.clear();
+		actualClassLabelsPart2.clear();
+
+		for (int i = 1; i < validationDataTablePart2.size(); i++)	
+		{
+			string data = validationDataTablePart2[i][0];
+			actualClassLabelsPart2.push_back(data);
+		}
+		
+		for (int i = 1; i < validationDataTablePart2.size(); i++)	
+		{
+			string test = "";
+			if (i == validationDataTablePart2.size() - 1)
+			{
+				test = "0";
+
+			}
+			else {
+				test = testData(validationDataTablePart2[i], root2, attributesInfo);
+			}
+
+			predictedClassLabelsPart2.push_back(test);
+		}
+
+		double accuracy2Valid = part1PercentAccuracy(actualClassLabelsPart2, predictedClassLabelsPart2);
+		//cout << "Part 2 valid" << "%" << " for depth " << depth << " is ";
+		cout << setprecision(4);
+		cout << accuracy2Valid << endl;
+		
+		return accuracy2Valid;
+}
+
+double FinalOutputPart2(int depth, vs datasetPart2, vvs attributesInfo) {
+	vvs trainingDataTablePart2;
+	vvs testingDataTablePart2;
+
+	//training set size = 80% creation
+	int trainingSizePart2 = datasetPart2.size() * 8 / 10;
+
+	for (int i = 0; i < trainingSizePart2; ++i)
+	{
+		parseStringIntoTable(datasetPart2.at(i), trainingDataTablePart2);
+	}
+
+	for (int i = trainingSizePart2; i < datasetPart2.size(); ++i)
+	{
+		parseStringIntoTable(datasetPart2.at(i), testingDataTablePart2);
+	}
+
+	TreeNode* root2 = new TreeNode;
+	root2->depth = 0;
+	root2 = decisionTreeLearningDepth(trainingDataTablePart2, attributesInfo, root2, depth);
+
+	//Test agains the decision tree we just made
+	vs predictedClassLabelsPart2;
+	vs actualClassLabelsPart2;
+
+	//Output against test set
+	for (int i = 1; i < testingDataTablePart2.size(); i++)	
+		{
+			string data = testingDataTablePart2[i][0];
+			actualClassLabelsPart2.push_back(data);
+		}
+		
+		for (int i = 1; i < testingDataTablePart2.size(); i++)	
+		{
+		string test = "";
+		if (i == testingDataTablePart2.size() - 1)
+		{
+			test = "0";
+		}
+		else {
+			test = testData(testingDataTablePart2[i], root2, attributesInfo);
+		}
+
+		predictedClassLabelsPart2.push_back(test);
+	}
+
+	double accuracy2Test = part1PercentAccuracy(actualClassLabelsPart2, predictedClassLabelsPart2);
+	return accuracy2Test;	
 }
