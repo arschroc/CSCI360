@@ -6,6 +6,8 @@
 #include "bitmap.hpp"
 #include <sstream>
 #include <math.h>
+#include <fstream>
+#include <iomanip>
 #define MNIST_DATA_DIR "../mnist_data"
 int main(int argc, char* argv[]) {
     //Read in the data set from the files
@@ -172,6 +174,15 @@ int main(int argc, char* argv[]) {
     
     totalCorrect = 0;
 
+    int outputMatrix[numLabels][numLabels];
+    for (int i = 0; i < numLabels; ++i)
+    {
+        for (int j = 0; j < numLabels; ++j)
+        {
+            outputMatrix[i][j] = 0;
+        }
+    }
+
     std:: cout << "\n";
     std:: cout << "Maxc (Sum (logPl(Fj= tij | C = c) + logP(C = c) ) )" << std::endl;
     for (int i = 0; i < testImages.size(); ++i)
@@ -214,7 +225,11 @@ int main(int argc, char* argv[]) {
         if (index == static_cast<int>(testLabels[i])) 
         {
             totalCorrect++;
-        }    
+        }
+
+        //add to output matrix
+        outputMatrix[static_cast<int>(testLabels[i])][index]++;
+        //outputMatrix[index][static_cast<int>(testLabels[i])]++;    
     }
 
     percentage = (double)totalCorrect / testImages.size();
@@ -228,6 +243,7 @@ int main(int argc, char* argv[]) {
      *
      */
     double p = 0;
+
     for (int c=0; c<numLabels; c++) {
         std::vector<unsigned char> classFs(numFeatures);
         for (int f=0; f<numFeatures; f++) {
@@ -237,8 +253,53 @@ int main(int argc, char* argv[]) {
             classFs[f] = (unsigned char)v;
         }
         std::stringstream ss;
+        ss << "../output/digit" <<c<<".bmp";
         Bitmap::writeBitmap(classFs, 28, 28, ss.str(), false);
     }
+
+     //output to network.txt
+    std::ofstream file1;
+    file1.open ("../output/network.txt");
+    for (int i = 0; i < numLabels; ++i)
+    {
+        std::stringstream ss;
+        ss << "P(Fj = 1 | C = " << i << ")\n";
+        file1 << ss.str();
+        for (int j = 0; j < numFeatures; ++j)
+        {
+           file1 << percentFeatureGivenC[i][j] << "\n";
+        }
+    }
+    file1 << "Prior Probabilities:\n";
+    for (int i = 0; i < numLabels; ++i)
+    {
+        std::stringstream ss;
+        ss << "P(C = " << i << "): ";
+        file1 << ss.str();
+        file1 << priorProbabilities[i] << "\n";
+    }
+    file1.close();
+
+    //output to classification-summary.txt
+    std::ofstream file2;
+    file2.open ("../output/classification-summary.txt");
+    for (int i = 0; i < numLabels; ++i)
+    {
+        for (int j = 0; j < numLabels; ++j)
+        {
+            if (j == 0)
+            {
+                file2 << std::setw(3) << outputMatrix[i][j];
+            }
+            else {
+                file2 << std::setw(10) << outputMatrix[i][j];
+            } 
+        }
+        file2 << "\n";
+    }
+    file2 << "Percent correct: " << percentage << "%";
+    file2.close();
+    
     
 
 
