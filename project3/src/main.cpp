@@ -222,6 +222,24 @@ int main(int argc, char* argv[]) {
     std::cout << "Percent correct: " << percentage << std::endl;
     
 
+    /*
+     *
+     * Evaluation
+     *
+     */
+    double p = 0;
+    for (int c=0; c<numLabels; c++) {
+        std::vector<unsigned char> classFs(numFeatures);
+        for (int f=0; f<numFeatures; f++) {
+            //TODO: get probability of pixel f being white given class c
+            p = percentFeatureGivenC[c][f];
+            uint8_t v = 255*p;
+            classFs[f] = (unsigned char)v;
+        }
+        std::stringstream ss;
+        Bitmap::writeBitmap(classFs, 28, 28, ss.str(), false);
+    }
+    
 
 
 
@@ -229,10 +247,7 @@ int main(int argc, char* argv[]) {
 
 
 
-
-
-
-
+    /*
 
     //print out one of the training images
     for (int f=0; f<numFeatures; f++) {
@@ -272,6 +287,7 @@ int main(int argc, char* argv[]) {
     ssTest << "../output/test" <<testImageToPrint<<"Label"<<static_cast<int>(testLabels[testImageToPrint])<<".bmp";
     Bitmap::writeBitmap(trainI, 28, 28, ssTrain.str(), false);
     Bitmap::writeBitmap(testI, 28, 28, ssTest.str(), false);
+    */
     return 0;
 }
 
