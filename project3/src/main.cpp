@@ -300,55 +300,6 @@ int main(int argc, char* argv[]) {
     file2 << "Percent correct: " << percentage << "%";
     file2.close();
     
-    
-
-
-
-
-
-
-
-    /*
-
-    //print out one of the training images
-    for (int f=0; f<numFeatures; f++) {
-        // get value of pixel f (0 or 1) from training image trainImageToPrint
-        int pixelIntValue = static_cast<int>(trainImages[trainImageToPrint][f]);
-        if (f % width == 0) {
-            std::cout<<std::endl;
-        }
-        std::cout<<pixelIntValue<<" ";
-    }
-    std::cout<<std::endl;
-    // print the associated label (correct digit) for training image trainImageToPrint
-    std::cout<<"Label: "<<static_cast<int>(trainLabels[trainImageToPrint])<<std::endl;
-    //print out one of the test images
-    for (int f=0; f<numFeatures; f++) {
-        // get value of pixel f (0 or 1) from training image trainImageToPrint
-        int pixelIntValue = static_cast<int>(testImages[testImageToPrint][f]);
-        if (f % width == 0) {
-            std::cout<<std::endl;
-        }
-        std::cout<<pixelIntValue<<" ";
-    }
-    std::cout<<std::endl;
-    // print the associated label (correct digit) for test image testImageToPrint
-    std::cout<<"Label: "<<static_cast<int>(testLabels[testImageToPrint])<<std::endl;
-    std::vector<unsigned char> trainI(numFeatures);
-    std::vector<unsigned char> testI(numFeatures);
-    for (int f=0; f<numFeatures; f++) {
-        int trainV = 255*(static_cast<int>(trainImages[trainImageToPrint][f]));
-        int testV = 255*(static_cast<int>(testImages[testImageToPrint][f]));
-        trainI[f] = static_cast<unsigned char>(trainV);
-        testI[f] = static_cast<unsigned char>(testV);
-    }
-    std::stringstream ssTrain;
-    std::stringstream ssTest;
-    ssTrain << "../output/train" <<trainImageToPrint<<"Label"<<static_cast<int>(trainLabels[trainImageToPrint])<<".bmp";
-    ssTest << "../output/test" <<testImageToPrint<<"Label"<<static_cast<int>(testLabels[testImageToPrint])<<".bmp";
-    Bitmap::writeBitmap(trainI, 28, 28, ssTrain.str(), false);
-    Bitmap::writeBitmap(testI, 28, 28, ssTest.str(), false);
-    */
     return 0;
 }
 
