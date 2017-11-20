@@ -93,9 +93,47 @@ int main(int argc, char* argv[]) {
     {
         for (int j = 0; j < numFeatures; ++j)
         {
-           percentFeatureGivenC[i][j] = (double)numFeaturesGivenC[i][j] / (double)imageDigits[i];
+           percentFeatureGivenC[i][j] = ((double)numFeaturesGivenC[i][j] + 1.0) / ((double)imageDigits[i] + 2.0);
         }
     }
+
+
+    /*
+     *
+     *Evaluate performance on test set
+     *
+     */
+
+    //For each test image Ti compute the probability that it belongs to each class
+    double probabilityOfClass[numLabels] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    double denominatorForC = 1.0;
+
+    for (int i = 0; i < numFeatures; ++i)
+    {
+        denominatorForC *= 0.5;
+    }
+
+    for (int i = 0; i < numLabels; ++i)
+    {
+        double numeratorForC = priorProbabilities[i];
+        for (int j = 0; j < numFeatures; ++j)
+        {
+            double tempProb = 1.0;
+            if (static_cast<int>(testImages[i][j]) == 1)
+            {
+                tempProb = percentFeatureGivenC[i][j];
+            }
+            else {
+                tempProb = 1.0 - percentFeatureGivenC[i][j];
+            }
+            numeratorForC *= tempProb;
+        }
+        probabilityOfClass[i] = numeratorForC / denominatorForC;
+    }
+
+
+    //Classify Ti as belonging to class ci that maximizes the following expression:
+    //Maxc (Sum (logPl(Fj= tij | C = c) + logP(C = c) ) )
 
 
 
