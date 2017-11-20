@@ -33,6 +33,81 @@ int main(int argc, char* argv[]) {
     std::vector<std::vector<unsigned char>> testImages = dataset.test_images;
     // get test labels
     std::vector<unsigned char> testLabels = dataset.test_labels;
+
+    /*
+     *
+     *Determine the probabilities from the training images
+     *
+     */
+
+    //Determine prior probabilies
+    std::cout << "PRIOR PROBABILITIES" << std::endl;
+    int imageDigits [] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    double priorProbabilities [] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    for (int i = 0; i < trainLabels.size(); ++i)
+    {
+        imageDigits[static_cast<int>(trainLabels[i])]++;
+    }
+
+    double total = 0;
+    for (int i = 0; i < numLabels; ++i)
+    {
+        priorProbabilities[i] += ((double) imageDigits[i]) / 60000.0;
+        total += priorProbabilities[i];
+        std::cout << priorProbabilities[i] << std::endl;
+    }
+
+    std::cout << total << "\n" << std::endl;
+
+
+
+    //Determine P(Fj = 1| C = c)
+    std::cout << "P(Fj = 1| C = c)" << std::endl;
+    int numFeaturesGivenC[numLabels][numFeatures];
+    double percentFeatureGivenC[numLabels][numFeatures];
+
+    //initialize arrays
+    for (int i = 0; i < numLabels; ++i)
+    {
+        for (int j = 0; j < numFeatures; ++j)
+        {
+            numFeaturesGivenC[i][j] = 0;
+            percentFeatureGivenC[i][j] = 0;
+        }
+    }
+
+    //find number of digit c where pixel Fj is white
+    for (int i = 0; i < trainImages.size(); ++i)
+    {
+        for (int j = 0; j < numFeatures; ++j)
+        {
+            if (static_cast<int>(trainImages[i][j]) == 1)
+            {
+                numFeaturesGivenC[trainLabels[i]][j]++;
+            }
+        }
+    }
+
+    //find P(Fj = 1| C = c)
+    for (int i = 0; i < numLabels; ++i)
+    {
+        for (int j = 0; j < numFeatures; ++j)
+        {
+           percentFeatureGivenC[i][j] = (double)numFeaturesGivenC[i][j] / (double)imageDigits[i];
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
     //print out one of the training images
     for (int f=0; f<numFeatures; f++) {
         // get value of pixel f (0 or 1) from training image trainImageToPrint
